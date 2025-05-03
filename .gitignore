@@ -361,3 +361,31 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+# Visual Studio generated files
+.vs/
+*.VC.db
+*.VC.VC.opendb
+
+# Build results
+x64/
+Debug/
+Release/
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.idb
+*.log
+*.tlog
+
+# User-specific files
+*.user
+*.suo
+*.cache
+
+# Others
+*.class
+*.ipch
+*.iobj
