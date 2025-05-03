@@ -2,15 +2,69 @@
 //
 
 #include <iostream>
-
 using namespace std;
+
+# include <Windows.h>
+
+int nScreenWidth{ 120 };
+int nScreenHeight{ 40 };
+
+float fPlayerX{ 0.0f };
+float fPLayerY{ 0.0f };
+float fPlayerA{ 0.0f };
+
+int nMapWidth{ 16 };
+int nMapHeight{ 16 };	
+
+int fFOV{ 3.14157 / 4.0 };
 
 int main()
 {
-    for (int i = 0 ; i < 100000; i++)
-    std::cout << "Hello World!\n";
+	// Create screen buffer
+	wchar_t* screen{ new wchar_t[nScreenWidth * nScreenHeight] };
+	HANDLE hConsole{ CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL) };
+	SetConsoleActiveScreenBuffer(hConsole); // Set target console
+	DWORD dwByteWritten{ 0 };
 
-    return 0;
+	wstring map;
+
+	map += L"################";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"#..............#";
+	map += L"################";
+
+
+	while (true)
+	{
+		// Axis going across the screen
+		for (int x = 0; x < nScreenWidth; x++)
+		{
+
+		}
+
+
+		screen[nScreenWidth * nScreenHeight - 1] = '\0';
+		WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0, 0 }, &dwByteWritten);
+
+
+	}
+
+
+
+	return 0;
+	
 }
 
 // 執行程式: Ctrl + F5 或 [偵錯] > [啟動但不偵錯] 功能表
