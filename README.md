@@ -17,7 +17,7 @@ It aims to simulate a basic first-person shooter (FPS) movement system for learn
 
 ## How to Run
 
-1. Clone this repo: git clone https://github.com/joshsmiththenoob/ConFPS.git
+1. Clone this repo: `git clone https://github.com/joshsmiththenoob/ConFPS.git`
 2. Open `ConFPS.sln` in Visual Studio
 3. Press `Ctrl + F5` to build and run the project
 
