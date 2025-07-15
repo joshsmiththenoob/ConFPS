@@ -2,9 +2,8 @@
 //
 
 #include <iostream>
-using namespace std;
-
 # include <Windows.h>
+using namespace std;
 
 int nScreenWidth{ 120 };
 int nScreenHeight{ 40 };
@@ -51,7 +50,8 @@ int main()
 		// Axis going across the screen
 		for (int x = 0; x < nScreenWidth; x++)
 		{
-
+			// for each column, calculate the projected ray angle into the world space
+			float fRayAngle{ (fPlayerA - fFOV / 2.0f) + ((float)x / (float)nScreenWidth) * fFOV };
 		}
 
 
