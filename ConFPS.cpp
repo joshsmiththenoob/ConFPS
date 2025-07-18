@@ -8,14 +8,15 @@ using namespace std;
 int nScreenWidth{ 120 };
 int nScreenHeight{ 40 };
 
-float fPlayerX{ 0.0f };
-float fPLayerY{ 0.0f };
+float fPlayerX{ 8.0f };
+float fPLayerY{ 8.0f };
 float fPlayerA{ 0.0f };
 
 int nMapWidth{ 16 };
 int nMapHeight{ 16 };	
 
-int fFOV{ 3.14157 / 4.0 };
+float fFOV{ 3.14157 / 4.0 };
+float fDepth{ 16.0f }; // Max distance to check for walls because map size is 16x16
 
 int main()
 {
@@ -52,6 +53,58 @@ int main()
 		{
 			// for each column, calculate the projected ray angle into the world space
 			float fRayAngle{ (fPlayerA - fFOV / 2.0f) + ((float)x / (float)nScreenWidth) * fFOV };
+
+			// Track distance from player to the wall
+			float fDistanceToWall{ 0.0f };
+			bool bHitWall{ false };
+
+			// Unit vector of the ray direction so that we can take one step on that direction to see if we hit a wall
+			float fEyeX{ sinf(fRayAngle) };
+			float fEyeY{ cosf(fRayAngle) };
+			
+			while ((!bHitWall) && (fDistanceToWall < fDepth))
+			{
+				// If we didn't hit the wall, we can take a step in the ray direction
+				fDistanceToWall += 0.1f;
+				
+				// because wall's boundaries are at integer coordinates, so we use intger casting to get the coordinates of the wall
+				int nTestX{ (int)(fPlayerX + fEyeX * fDistanceToWall) };
+				int nTestY{ (int)(fPLayerY + fEyeY * fDistanceToWall) };
+
+				// On the interger test location, we need to test if ray is out of bounds
+				if (nTestX < 0 || nTestX >= nMapWidth || nTestY < 0 || nTestY >= nMapHeight)
+				{
+					bHitWall = true; // Out of bounds, so we hit the wall
+					fDistanceToWall = fDepth; // Set distance to max depth
+				}
+				else
+				{
+					// Ray is inbounds -> to testif the ray's location is on a wall
+					if (map[nTestY * nMapWidth + nTestX] == '#')
+					{
+						bHitWall = true; // We hit the wall
+					}
+				}
+
+
+
+			}
+
+
+			// Calculat distance to ceiling and floor
+			int nCeiling{ (int)((float)nScreenHeight / 2.0f - nScreenHeight / fDistanceToWall) };
+			int nFloor{ nScreenHeight - nCeiling }; 
+
+			for (int y = 0; y < nScreenHeight; y++)
+			{
+				if (y < nCeiling)
+					screen[y * nScreenWidth + x] = ' '; // Ceiling
+				else if (y >= nCeiling && y <= nFloor)
+					screen[y * nScreenWidth + x] = '#'; // Wall
+				else
+					screen[y * nScreenWidth + x] = ' '; // Floor
+			}
+
 		}
 
 
