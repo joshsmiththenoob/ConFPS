@@ -2,14 +2,15 @@
 //
 
 #include <iostream>
-# include <Windows.h>
+#include <chrono>
+#include <Windows.h>
 using namespace std;
 
 int nScreenWidth{ 120 };
 int nScreenHeight{ 40 };
 
 float fPlayerX{ 8.0f };
-float fPLayerY{ 8.0f };
+float fPLayerY{ 11.0f };
 float fPlayerA{ 0.0f };
 
 int nMapWidth{ 16 };
@@ -20,7 +21,7 @@ float fDepth{ 16.0f }; // Max distance to check for walls because map size is 16
 
 int main()
 {
-	// Create screen buffer
+	// Create screen buffer (Player's View)
 	wchar_t* screen{ new wchar_t[nScreenWidth * nScreenHeight] };
 	HANDLE hConsole{ CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL) };
 	SetConsoleActiveScreenBuffer(hConsole); // Set target console
@@ -46,8 +47,41 @@ int main()
 	map += L"################";
 
 
+	// Using chrono library to show frame rate [fps]
+	auto tp1{ chrono::system_clock::now() };
+	auto tp2{ chrono::system_clock::now() };
+
+
+
 	while (true)
 	{
+		// Show the frame rate when frame was refreshed & Control the speed of angle view rotation 
+		tp2 = chrono::system_clock::now();
+		chrono::duration<float> elaspedTime = tp2 - tp1;
+		tp1 = tp2;
+		float fElaspedTime{ elaspedTime.count() };
+
+		// Controls
+		// Rotate the Angle of View of Player
+		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
+			fPlayerA -= (0.5f) * fElaspedTime;
+
+		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+			fPlayerA += (0.5f) * fElaspedTime;
+
+		// Move&Back Forward in the map
+		if (GetAsyncKeyState((unsigned short)'W') & 0x8000) 
+		{
+			fPlayerX += sinf(fPlayerA) * fElaspedTime * 5;
+			fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
+		}
+
+		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+		{ 
+			fPlayerX -= sinf(fPlayerA) * fElaspedTime * 5;
+			fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
+		}
+
 		// Axis going across the screen
 		for (int x = 0; x < nScreenWidth; x++)
 		{
@@ -67,7 +101,7 @@ int main()
 				// If we didn't hit the wall, we can take a step in the ray direction
 				fDistanceToWall += 0.1f;
 				
-				// because wall's boundaries are at integer coordinates, so we use intger casting to get the coordinates of the wall
+				// because wall's boundaries are at integer coordinates(dot index), so we use intger casting to get the coordinates of the wall
 				int nTestX{ (int)(fPlayerX + fEyeX * fDistanceToWall) };
 				int nTestY{ (int)(fPLayerY + fEyeY * fDistanceToWall) };
 
@@ -79,7 +113,7 @@ int main()
 				}
 				else
 				{
-					// Ray is inbounds -> to testif the ray's location is on a wall
+					// Ray is inbounds -> to test if the ray's location is on a wall
 					if (map[nTestY * nMapWidth + nTestX] == '#')
 					{
 						bHitWall = true; // We hit the wall
@@ -91,7 +125,23 @@ int main()
 			}
 
 
-			// Calculat distance to ceiling and floor
+			// Shading the wall: further to the wall (long distance) -> the wall will be darker, and vice versa. by using UTF-16 Unicde for ascii character 
+			// reference: https://www.ascii-code.com/CP437
+			short nShade = ' ';
+			if (fDistanceToWall <= fDepth / 4.0f) // Get very close to wall -> will be full-shaded
+				nShade = 0x2588;
+			else if (fDistanceToWall <= fDepth / 3.0f)
+				nShade = 0x2593;
+			else if (fDistanceToWall <= fDepth / 2.0f)
+				nShade = 0x2592;
+			else if (fDistanceToWall <= fDepth) // Get far to wall -> will be light-shaded
+				nShade = 0x2591;
+			else
+				nShade = ' '; // So far, far way -> will see nothing
+
+
+
+			// Calculate distance to ceiling and floor
 			int nCeiling{ (int)((float)nScreenHeight / 2.0f - nScreenHeight / fDistanceToWall) };
 			int nFloor{ nScreenHeight - nCeiling }; 
 
@@ -100,7 +150,7 @@ int main()
 				if (y < nCeiling)
 					screen[y * nScreenWidth + x] = ' '; // Ceiling
 				else if (y >= nCeiling && y <= nFloor)
-					screen[y * nScreenWidth + x] = '#'; // Wall
+					screen[y * nScreenWidth + x] = nShade; // Wall: Use '#' in the beginning, but we can use shading method to shade the wall based on distance 
 				else
 					screen[y * nScreenWidth + x] = ' '; // Floor
 			}
