@@ -140,10 +140,25 @@ int main()
 				nShade = ' '; // So far, far way -> will see nothing
 
 
+			// Shading the wall: further to the wall (long distance) -> the wall will be darker, and vice versa. by using UTF-16 Unicde for ascii character 
+			// reference: https://www.ascii-code.com/CP437
+			short nShadeOfFloor = ' ';
+			if (fDistanceToWall <= fDepth / 4.0f) // Get very close to wall -> will be full-shaded
+				nShadeOfFloor = 0x0040;
+			else if (fDistanceToWall <= fDepth / 3.0f)
+				nShadeOfFloor = 0x0025;
+			else if (fDistanceToWall <= fDepth / 2.0f)
+				nShadeOfFloor = 0x0023;
+			else
+				nShadeOfFloor = ' '; // So far, far way -> will see nothing
+	
+
+
 
 			// Calculate distance to ceiling and floor
 			int nCeiling{ (int)((float)nScreenHeight / 2.0f - nScreenHeight / fDistanceToWall) };
-			int nFloor{ nScreenHeight - nCeiling }; 
+			int nFloor{ nScreenHeight - nCeiling };
+			
 
 			for (int y = 0; y < nScreenHeight; y++)
 			{
@@ -152,7 +167,7 @@ int main()
 				else if (y >= nCeiling && y <= nFloor)
 					screen[y * nScreenWidth + x] = nShade; // Wall: Use '#' in the beginning, but we can use shading method to shade the wall based on distance 
 				else
-					screen[y * nScreenWidth + x] = ' '; // Floor
+					screen[y * nScreenWidth + x] = nShadeOfFloor; // Floor
 			}
 
 		}
