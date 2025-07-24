@@ -151,7 +151,9 @@ int main()
 				nShadeOfFloor = 0x0023;
 			else
 				nShadeOfFloor = ' '; // So far, far way -> will see nothing
-	
+			short nFarFloor { 0x0023 };
+			short nSuitableFloor{ 0x0025 };
+			short nCloseFloor{ 0x0040 };
 
 
 
@@ -166,8 +168,13 @@ int main()
 					screen[y * nScreenWidth + x] = ' '; // Ceiling
 				else if (y >= nCeiling && y <= nFloor)
 					screen[y * nScreenWidth + x] = nShade; // Wall: Use '#' in the beginning, but we can use shading method to shade the wall based on distance 
+				else if (y > nFloor && y <= 30)
+					screen[y * nScreenWidth + x] = nFarFloor; // Floor
+				else if (y > 30 && y <= 35)
+					screen[y * nScreenWidth + x] = nSuitableFloor; // Floor
 				else
-					screen[y * nScreenWidth + x] = nShadeOfFloor; // Floor
+					screen[y * nScreenWidth + x] = nCloseFloor;
+
 			}
 
 		}
