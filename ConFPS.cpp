@@ -10,7 +10,7 @@ int nScreenWidth{ 120 };
 int nScreenHeight{ 40 };
 
 float fPlayerX{ 8.0f };
-float fPLayerY{ 11.0f };
+float fPlayerY{ 11.0f };
 float fPlayerA{ 0.0f };
 
 int nMapWidth{ 16 };
@@ -32,12 +32,12 @@ int main()
 	map += L"################";
 	map += L"#..............#";
 	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
+	map += L"#..........#...#";
+	map += L"#..........#...#";
+	map += L"#..........#...#";
+	map += L"#..........#...#";
+	map += L"#..........#...#";
+	map += L"#..........#...#";
 	map += L"#..............#";
 	map += L"#..............#";
 	map += L"#..............#";
@@ -73,13 +73,13 @@ int main()
 		if (GetAsyncKeyState((unsigned short)'W') & 0x8000) 
 		{
 			fPlayerX += sinf(fPlayerA) * fElaspedTime * 5;
-			fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
+			fPlayerY += cosf(fPlayerA) * fElaspedTime * 5;
 		}
 
 		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
 		{ 
 			fPlayerX -= sinf(fPlayerA) * fElaspedTime * 5;
-			fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
+			fPlayerY -= cosf(fPlayerA) * fElaspedTime * 5;
 		}
 
 		// Axis going across the screen
@@ -103,7 +103,7 @@ int main()
 				
 				// because wall's boundaries are at integer coordinates(dot index), so we use intger casting to get the coordinates of the wall
 				int nTestX{ (int)(fPlayerX + fEyeX * fDistanceToWall) };
-				int nTestY{ (int)(fPLayerY + fEyeY * fDistanceToWall) };
+				int nTestY{ (int)(fPlayerY + fEyeY * fDistanceToWall) };
 
 				// On the interger test location, we need to test if ray is out of bounds
 				if (nTestX < 0 || nTestX >= nMapWidth || nTestY < 0 || nTestY >= nMapHeight)
@@ -142,18 +142,18 @@ int main()
 
 			// Shading the wall: further to the wall (long distance) -> the wall will be darker, and vice versa. by using UTF-16 Unicde for ascii character 
 			// reference: https://www.ascii-code.com/CP437
-			short nShadeOfFloor = ' ';
-			if (fDistanceToWall <= fDepth / 4.0f) // Get very close to wall -> will be full-shaded
-				nShadeOfFloor = 0x0040;
-			else if (fDistanceToWall <= fDepth / 3.0f)
-				nShadeOfFloor = 0x0025;
-			else if (fDistanceToWall <= fDepth / 2.0f)
-				nShadeOfFloor = 0x0023;
-			else
-				nShadeOfFloor = ' '; // So far, far way -> will see nothing
-			short nFarFloor { 0x0023 };
-			short nSuitableFloor{ 0x0025 };
-			short nCloseFloor{ 0x0040 };
+			//short nShadeOfFloor = ' ';
+			//if (fDistanceToWall <= fDepth / 4.0f) // Get very close to wall -> will be full-shaded
+			//	nShadeOfFloor = 0x0040;
+			//else if (fDistanceToWall <= fDepth / 3.0f)
+			//	nShadeOfFloor = 0x0025;
+			//else if (fDistanceToWall <= fDepth / 2.0f)
+			//	nShadeOfFloor = 0x0023;
+			//else
+			//	nShadeOfFloor = ' '; // So far, far way -> will see nothing
+			//short nFarFloor { 0x0023 };
+			//short nSuitableFloor{ 0x0025 };
+			//short nCloseFloor{ 0x0040 };
 
 
 
@@ -168,13 +168,28 @@ int main()
 					screen[y * nScreenWidth + x] = ' '; // Ceiling
 				else if (y >= nCeiling && y <= nFloor)
 					screen[y * nScreenWidth + x] = nShade; // Wall: Use '#' in the beginning, but we can use shading method to shade the wall based on distance 
-				else if (y > nFloor && y <= 30)
-					screen[y * nScreenWidth + x] = nFarFloor; // Floor
-				else if (y > 30 && y <= 35)
-					screen[y * nScreenWidth + x] = nSuitableFloor; // Floor
-				else
-					screen[y * nScreenWidth + x] = nCloseFloor;
+				//else if (y > nFloor && y <= 30)
+				//	screen[y * nScreenWidth + x] = nFarFloor; // Floor
+				//else if (y > 30 && y <= 35)
+				//	screen[y * nScreenWidth + x] = nSuitableFloor; // Floor
+				//else
+				//	screen[y * nScreenWidth + x] = nCloseFloor;
+				else {
+					float b{ 1.0f - (((float)y - nScreenHeight / 2.0f) / ((float)nScreenHeight / 2.0f)) };
+					
+					if (b < 0.25)
+						nShade = '#';
+					else if (b < 0.5)
+						nShade = 'x';
+					else if (b < 0.75)
+						nShade = '.';
+					else if (b < 0.9)
+						nShade = '-';
+					else
+						nShade = ' ';
+					screen[y * nScreenWidth + x] = nShade; // Wall: Use '#' in the beginning, but we can use shading method to shade the wall based on distance 
 
+				}
 			}
 
 		}
