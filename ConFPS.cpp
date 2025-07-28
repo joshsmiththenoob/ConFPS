@@ -74,12 +74,25 @@ int main()
 		{
 			fPlayerX += sinf(fPlayerA) * fElaspedTime * 5;
 			fPlayerY += cosf(fPlayerA) * fElaspedTime * 5;
+
+			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#') // If we hit the wall, we will not move -> Undo moving action
+			{
+				fPlayerX -= sinf(fPlayerA) * fElaspedTime * 5;
+				fPlayerY -= cosf(fPlayerA) * fElaspedTime * 5;
+			}
 		}
 
 		if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
 		{ 
 			fPlayerX -= sinf(fPlayerA) * fElaspedTime * 5;
 			fPlayerY -= cosf(fPlayerA) * fElaspedTime * 5;
+
+
+			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#') // If we hit the wall, we will not move -> Undo moving action
+			{
+				fPlayerX += sinf(fPlayerA) * fElaspedTime * 5;
+				fPlayerY += cosf(fPlayerA) * fElaspedTime * 5;
+			}
 		}
 
 		// Axis going across the screen
@@ -91,6 +104,7 @@ int main()
 			// Track distance from player to the wall
 			float fDistanceToWall{ 0.0f };
 			bool bHitWall{ false };
+			bool bBoundary{ false }; // To make the wall more realistic, we need to detect if the wall is in the boundary
 
 			// Unit vector of the ray direction so that we can take one step on that direction to see if we hit a wall
 			float fEyeX{ sinf(fRayAngle) };
