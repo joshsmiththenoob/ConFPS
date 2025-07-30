@@ -2,8 +2,11 @@
 //
 
 #include <iostream>
+#include <vector>
 #include <chrono>
+#include <algorithm>
 #include <Windows.h>
+
 using namespace std;
 
 int nScreenWidth{ 120 };
@@ -31,18 +34,18 @@ int main()
 
 	map += L"################";
 	map += L"#..............#";
-	map += L"#..............#";
+	map += L"#....#.........#";
+	map += L"#..........#...#";
+	map += L"#....#.....#...#";
 	map += L"#..........#...#";
 	map += L"#..........#...#";
 	map += L"#..........#...#";
 	map += L"#..........#...#";
-	map += L"#..........#...#";
-	map += L"#..........#...#";
+	map += L"#..###.........#";
 	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
-	map += L"#..............#";
+	map += L"#.....#........#";
+	map += L"#.....#........#";
+	map += L"#....###.......#";
 	map += L"#..............#";
 	map += L"################";
 
@@ -131,6 +134,29 @@ int main()
 					if (map[nTestY * nMapWidth + nTestX] == '#')
 					{
 						bHitWall = true; // We hit the wall
+
+						// if we hit the wall, we need to check if the ray is in the boundary of the wall
+						std::vector<pair<float, float >> vBoundary; // To store the boundary of the wall, each element is a pair of (distance, dot product) p.s.: dot product represents the angle between two rays(vectors (ray from player and boundary))
+						
+						for (int tx = 0; tx < 2; tx++) // Check the two boundaries of the wall
+						{
+							for (int ty = 0; ty < 2; ty++)
+							{
+								// Get the boundary coordinates of the wall
+								int nBoundaryX{ nTestX + tx };
+								int nBoundaryY{ nTestY + ty };
+								// Calculate the distance to the boundary
+								float fBoundaryDistance{ sqrtf((nBoundaryX - fPlayerX) * (nBoundaryX - fPlayerX) + (nBoundaryY - fPlayerY) * (nBoundaryY - fPlayerY)) };
+								// Calculate the dot product between the ray and the boundary
+								float fDotProduct{ (fEyeX * (nBoundaryX - fPlayerX) + fEyeY * (nBoundaryY - fPlayerY)) / (sqrtf(fEyeX * fEyeX + fEyeY * fEyeY) * sqrtf((nBoundaryX - fPlayerX) * (nBoundaryX - fPlayerX) + (nBoundaryY - fPlayerY) * (nBoundaryY - fPlayerY))) };
+								vBoundary.push_back(make_pair(fBoundaryDistance, fDotProduct));
+							}
+						}
+
+						// Sort the boundary by distance (closet -> farthest)
+						sort(vBoundary.begin(), vBoundary.end(), [](const pair<float, float>& left, const pair<float, float>& right) {
+							return left.first < right.first;
+							});
 					}
 				}
 
