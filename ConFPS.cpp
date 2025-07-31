@@ -66,11 +66,11 @@ int main()
 
 		// Controls
 		// Rotate the Angle of View of Player
-		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
-			fPlayerA -= (0.5f) * fElaspedTime;
+		if (GetAsyncKeyState((unsigned short)'Q') & 0x8000)
+			fPlayerA -= (0.5f) * fElaspedTime * 3;
 
-		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
-			fPlayerA += (0.5f) * fElaspedTime;
+		if (GetAsyncKeyState((unsigned short)'E') & 0x8000)
+			fPlayerA += (0.5f) * fElaspedTime * 3;
 
 		// Move&Back Forward in the map
 		if (GetAsyncKeyState((unsigned short)'W') & 0x8000) 
@@ -97,6 +97,31 @@ int main()
 				fPlayerY += cosf(fPlayerA) * fElaspedTime * 5;
 			}
 		}
+
+		// Move Left&Right in the map
+		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
+		{
+			fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
+			fPlayerY += sinf(fPlayerA) * fElaspedTime * 5;
+
+			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#') // If we hit the wall, we will not move -> Undo moving action
+			{
+				fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
+				fPlayerY -= sinf(fPlayerA) * fElaspedTime * 5;
+			}
+		}
+
+		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
+		{
+			fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
+			fPlayerY -= sinf(fPlayerA) * fElaspedTime * 5;
+			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#') // If we hit the wall, we will not move -> Undo moving action
+			{
+				fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
+				fPlayerY += sinf(fPlayerA) * fElaspedTime * 5;
+			}
+		}
+
 
 		// Axis going across the screen
 		for (int x = 0; x < nScreenWidth; x++)
@@ -150,6 +175,7 @@ int main()
 								// Calculate the dot product between the ray and the boundary
 								float fDotProduct{ (fEyeX * (nBoundaryX - fPlayerX) + fEyeY * (nBoundaryY - fPlayerY)) / (sqrtf(fEyeX * fEyeX + fEyeY * fEyeY) * sqrtf((nBoundaryX - fPlayerX) * (nBoundaryX - fPlayerX) + (nBoundaryY - fPlayerY) * (nBoundaryY - fPlayerY))) };
 								vBoundary.push_back(make_pair(fBoundaryDistance, fDotProduct));
+
 							}
 						}
 
@@ -157,6 +183,16 @@ int main()
 						sort(vBoundary.begin(), vBoundary.end(), [](const pair<float, float>& left, const pair<float, float>& right) {
 							return left.first < right.first;
 							});
+
+
+						//float fBound{ 0.05f }; // Boundary threshold to determine if the ray is in the boundary
+						float fBound{ 0.01f }; // Boundary threshold to determine if the ray is in the boundary
+						if (acos(vBoundary.at(0).second) < fBound)
+							bBoundary = true; // If the angle between the ray and the boundary is less than the threshold, we consider it as a boundary
+						if (acos(vBoundary.at(1).second) < fBound)
+							bBoundary = true; // If the angle between the ray and the boundary is less than the threshold, we consider it as a boundary
+						if (acos(vBoundary.at(2).second) < fBound)
+							bBoundary = true; // If the angle between the ray and the boundary is less than the threshold, we consider it as a boundary
 					}
 				}
 
@@ -178,6 +214,9 @@ int main()
 				nShade = 0x2591;
 			else
 				nShade = ' '; // So far, far way -> will see nothing
+			
+			if (bBoundary) // If the ray is in the boundary of the wall, we need to use a different shade
+				nShade = ' '; // Use a different shade for the boundary
 
 
 			// Shading the wall: further to the wall (long distance) -> the wall will be darker, and vice versa. by using UTF-16 Unicde for ascii character 
@@ -197,7 +236,7 @@ int main()
 
 
 
-			// Calculate distance to ceiling and floor
+			// Calculate distance to ceiling and floor -> Render column of the Screen (View of Player)
 			int nCeiling{ (int)((float)nScreenHeight / 2.0f - nScreenHeight / fDistanceToWall) };
 			int nFloor{ nScreenHeight - nCeiling };
 			
