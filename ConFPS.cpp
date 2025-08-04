@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <algorithm>
+#include <string>
 #include <Windows.h>
 
 using namespace std;
