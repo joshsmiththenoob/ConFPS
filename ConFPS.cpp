@@ -31,7 +31,7 @@ int main()
 	SetConsoleActiveScreenBuffer(hConsole); // Set target console
 	DWORD dwByteWritten{ 0 };
 
-	wstring map;
+	wstring map{};
 
 	map += L"################";
 	map += L"#..............#";
@@ -274,6 +274,19 @@ int main()
 
 		}
 
+		// Display Stats
+		//swprintf_s(screen, 40, L"FPS: %3.2f | Player X: %3.2f | Player Y: %3.2f | Player A: %3.2f", 1.0f / fElaspedTime, fPlayerX, fPlayerY, fPlayerA);
+		swprintf_s(screen, 40, L"X=%3.2f, Y=%3.2f, A=%3.2f, FPS=%3.2f", fPlayerX, fPlayerY, fPlayerA, 1.0f / fElaspedTime);
+
+		// Display Map
+		for (int nx = 0; nx < nMapWidth; nx++)
+			for (int ny = 0; ny < nMapHeight; ny++)
+			{
+				screen[(ny + 1) * nScreenWidth + nx] = map[ny * nMapWidth + nx];
+			}
+
+		// Diaply Player Location
+		screen[(int)(fPlayerY + 1) * nScreenWidth + (int)fPlayerX] = 'P'; // P for Player
 
 		screen[nScreenWidth * nScreenHeight - 1] = '\0';
 		WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0, 0 }, &dwByteWritten);
