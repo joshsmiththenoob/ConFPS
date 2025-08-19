@@ -68,10 +68,10 @@ int main()
 		// Controls
 		// Rotate the Angle of View of Player
 		if (GetAsyncKeyState((unsigned short)'Q') & 0x8000)
-			fPlayerA -= (0.5f) * fElaspedTime * 3;
+			fPlayerA += (0.5f) * fElaspedTime * 3;
 
 		if (GetAsyncKeyState((unsigned short)'E') & 0x8000)
-			fPlayerA += (0.5f) * fElaspedTime * 3;
+			fPlayerA -= (0.5f) * fElaspedTime * 3;
 
 		// Move&Back Forward in the map
 		if (GetAsyncKeyState((unsigned short)'W') & 0x8000) 
@@ -102,24 +102,24 @@ int main()
 		// Move Left&Right in the map
 		if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
 		{
-			fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
-			fPlayerY += sinf(fPlayerA) * fElaspedTime * 5;
+			fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
+			fPlayerY -= sinf(fPlayerA) * fElaspedTime * 5;
 
 			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#') // If we hit the wall, we will not move -> Undo moving action
 			{
-				fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
-				fPlayerY -= sinf(fPlayerA) * fElaspedTime * 5;
+				fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
+				fPlayerY += sinf(fPlayerA) * fElaspedTime * 5;
 			}
 		}
 
 		if (GetAsyncKeyState((unsigned short)'D') & 0x8000)
 		{
-			fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
-			fPlayerY -= sinf(fPlayerA) * fElaspedTime * 5;
+			fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
+			fPlayerY += sinf(fPlayerA) * fElaspedTime * 5;
 			if (map[(int)fPlayerY * nMapWidth + (int)fPlayerX] == '#') // If we hit the wall, we will not move -> Undo moving action
 			{
-				fPlayerX -= cosf(fPlayerA) * fElaspedTime * 5;
-				fPlayerY += sinf(fPlayerA) * fElaspedTime * 5;
+				fPlayerX += cosf(fPlayerA) * fElaspedTime * 5;
+				fPlayerY -= sinf(fPlayerA) * fElaspedTime * 5;
 			}
 		}
 
@@ -128,7 +128,7 @@ int main()
 		for (int x = 0; x < nScreenWidth; x++)
 		{
 			// for each column, calculate the projected ray angle into the world space
-			float fRayAngle{ (fPlayerA - fFOV / 2.0f) + ((float)x / (float)nScreenWidth) * fFOV };
+			float fRayAngle{ (fPlayerA + fFOV / 2.0f) - ((float)x / (float)nScreenWidth) * fFOV };
 
 			// Track distance from player to the wall
 			float fDistanceToWall{ 0.0f };

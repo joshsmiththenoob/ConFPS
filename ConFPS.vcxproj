@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConFPS.cpp" />
+    <ClCompile Include="ITTriathlon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
